@@ -9,12 +9,14 @@ public class AdventurerController : MonoBehaviour
     public LayerMask whatIsGround;
     public Transform groundcheck;
     private float groundRadius = 0.5f;
+    public float fallMultiplier = 5.0f;
 
     private bool grounded;
     private bool jump;
+    private bool attack;
 
     bool facingRight = true;
-
+    
     private float hAxis;
 
     private Rigidbody2D theRigidBody;
@@ -41,20 +43,21 @@ public class AdventurerController : MonoBehaviour
 
         hAxis = Input.GetAxis("Horizontal");
 
+        attack = Input.GetKeyDown("l");
 
-        theAnimator.SetFloat("hSpeed", Mathf.Abs(hAxis));
+        theAnimator.SetFloat("hspeed", Mathf.Abs(hAxis));
 
         Collider2D colliderWeCollidedWith = Physics2D.OverlapCircle(groundcheck.position, groundRadius, whatIsGround);
-
-   
      
         grounded = (bool)colliderWeCollidedWith;
 
-        theAnimator.SetBool("Ground", grounded);
+        theAnimator.SetBool("ground", grounded);
 
         float yVelocity = theRigidBody.velocity.y;
 
         theAnimator.SetFloat("vspeed", yVelocity);
+
+        theAnimator.SetBool("attacking", attack);
 
 
       
@@ -73,6 +76,24 @@ public class AdventurerController : MonoBehaviour
             }
         }
 
+        if (grounded && !jump)
+        {
+            theRigidBody.velocity = new Vector2(horizontalSpeed * hAxis, theRigidBody.velocity.y);
+        }
+        else if (grounded && jump)
+        {
+
+            theRigidBody.velocity = new Vector2(theRigidBody.velocity.x, jumpSpeed);
+        }
+
+
+        if (theRigidBody.velocity.y < 0)
+        {
+
+            theRigidBody.velocity += Vector2.up * Physics2D.gravity.y * fallMultiplier * Time.deltaTime;
+
+        }
+
     }
 
    
@@ -80,32 +101,7 @@ public class AdventurerController : MonoBehaviour
     {
 
         
-        if (grounded && !jump)
-        {
-          
-
-            if (dashing == true)
-            {
-                theRigidBody.velocity = new Vector2(horizontalSpeed * hAxis * dashMultiplier, theRigidBody.velocity.y);
-            }
-            else
-            {
-                theRigidBody.velocity = new Vector2(horizontalSpeed * hAxis, theRigidBody.velocity.y);
-            }
-        }
-        else if (grounded && jump)
-        {
-           
-            theRigidBody.velocity = new Vector2(theRigidBody.velocity.x, jumpSpeed);
-        }
-
-
-        if (theRigidBody.velocity.y < 0)
-        {
-    
-            theRigidBody.velocity += Vector2.up * Physics2D.gravity.y * fallMultiplier * Time.deltaTime;
-
-        }
+   
   
 
     }
